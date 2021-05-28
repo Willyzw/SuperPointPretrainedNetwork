@@ -188,8 +188,8 @@ class SuperPointFrontend(object):
       return out, np.zeros((1)).astype(int)
     # Initialize the grid.
     for i, rc in enumerate(rcorners.T):
-      grid[rcorners[1,i], rcorners[0,i]] = 1
-      inds[rcorners[1,i], rcorners[0,i]] = i
+      grid[rc[1], rc[0]] = 1
+      inds[rc[1], rc[0]] = i
     # Pad the border of the grid, so that we can NMS points near the border.
     pad = dist_thresh
     grid = np.pad(grid, ((pad,pad), (pad,pad)), mode='constant')
@@ -256,8 +256,8 @@ class SuperPointFrontend(object):
     pts[1, :] = xs
     pts[2, :] = heatmap[xs, ys]
     pts, _ = self.nms_fast(pts, H, W, dist_thresh=self.nms_dist) # Apply NMS.
-    inds = np.argsort(pts[2,:])
-    pts = pts[:,inds[::-1]] # Sort by confidence.
+    # inds = np.argsort(pts[2,:])
+    # pts = pts[:,inds[::-1]] # Sort by confidence.
     # Remove points along border.
     bord = self.border_remove
     toremoveW = np.logical_or(pts[0, :] < bord, pts[0, :] >= (W-bord))
@@ -529,6 +529,9 @@ class VideoStreamer(object):
         if self.maxlen == 0:
           raise IOError('No images were found (maybe bad \'--img_glob\' parameter?)')
 
+  def reset(self):
+    self.i = 0
+  
   def read_image(self, impath, img_size):
     """ Read image as grayscale and resize to img_size.
     Inputs
